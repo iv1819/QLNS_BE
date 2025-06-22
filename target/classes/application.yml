@@ -1,0 +1,69 @@
+# =========================
+# Server configuration
+# =========================
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# =========================
+# Spring configuration
+# =========================
+spring:
+  web:
+    resources:
+      static-locations: file:${upload.dir}/
+    cors:
+      allowed-origins: "*"
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+      max-age: 3600
+  mvc:
+    static-path-pattern: /uploads/**
+  datasource:
+    url: jdbc:sqlserver://LAPTOP-35O054C8\\MSSQLSERVER01:50055;databaseName=QLNS_API;encrypt=false
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    username: user1
+    password: 12345
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  cassandra:
+    schema-action: CREATE_IF_NOT_EXISTS
+
+# =========================
+# Logging configuration
+# =========================
+logging:
+  level:
+    org.springframework.web: WARN
+    com.datastax.astra: INFO
+    root: WARN
+
+# =========================
+# Upload directory config
+# =========================
+upload:
+  dir: uploads  # Đường dẫn thư mục chứa ảnh (tương đối, nằm ngoài classpath)
+
+# =========================
+# Astra (nếu cần)
+# =========================
+astra:
+  api:
+    application-token: ${ASTRA_DB_APPLICATION_TOKEN}
+    database-id: ${ASTRA_DB_ID}
+    database-region: ${ASTRA_DB_REGION}
+  cql:
+    enabled: true
+    download-scb:
+      enabled: true
+    driver-config:
+      basic:
+        session-keyspace: ${ASTRA_DB_KEYSPACE}
