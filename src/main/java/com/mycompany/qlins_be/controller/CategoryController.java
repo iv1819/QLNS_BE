@@ -30,6 +30,14 @@ public class CategoryController {
         List<Category> categories = categoryRepository.findAll();
         return ResponseEntity.ok(categories);
     }
+    @GetMapping("/findid")
+    public ResponseEntity<String> findIdByTenDanhMuc(@RequestParam String tenDanhMuc) {
+        return categoryRepository.findByTenDanhMuc(tenDanhMuc)
+            .map(category -> ResponseEntity.ok(category.getMaDanhMuc()))
+            .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Không tìm thấy danh mục với tên: " + tenDanhMuc));
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable String id) {
