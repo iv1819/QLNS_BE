@@ -29,12 +29,6 @@ public class BookController {
 
     @Autowired
     private BookRepository bookRepository;
-    @Autowired
-    private AuthorRepository authorRepository;
-    @Autowired
-    private PublisherRepository publisherRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
 
     @GetMapping
     public ResponseEntity<List<Book>> getAllBooks() {
