@@ -4,11 +4,11 @@
  */
 package com.mycompany.qlins_be.model;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Max;
 
 /**
  * DTO (Data Transfer Object) cho đối tượng Book.
@@ -45,5 +45,8 @@ public class BookDto {
 
     @NotBlank(message = "Mã danh mục không được để trống!")
     private String maDanhMuc; // Mã danh mục
+
+
+    
 }
 

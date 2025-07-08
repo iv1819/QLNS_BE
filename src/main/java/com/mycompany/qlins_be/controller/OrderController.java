@@ -9,7 +9,7 @@ import com.mycompany.qlins_be.entity.Order;
 import com.mycompany.qlins_be.repository.ODRepository;
 import com.mycompany.qlins_be.repository.OrderRepository;
 import java.util.List;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

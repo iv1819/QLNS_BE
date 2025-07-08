@@ -4,132 +4,92 @@
  */
 package com.mycompany.qlins_be.controller;
 
-import com.mycompany.qlins_be.entity.Author;
-import com.mycompany.qlins_be.entity.Book;
-import com.mycompany.qlins_be.entity.Category;
-import com.mycompany.qlins_be.entity.Publisher;
-import com.mycompany.qlins_be.repository.AuthorRepository;
-import com.mycompany.qlins_be.repository.BookRepository;
-import com.mycompany.qlins_be.repository.CategoryRepository;
-import com.mycompany.qlins_be.repository.PublisherRepository;
+import com.mycompany.qlins_be.model.BookDto;
+import com.mycompany.qlins_be.service.BookService;
+import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import javax.validation.Valid;
-import org.springframework.web.server.ResponseStatusException;
+import java.util.Map;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 @RestController // Đánh dấu đây là một REST Controller
 @RequestMapping("/books") 
 @CrossOrigin(origins = "http://localhost:8080")
 public class BookController {
 
-    @Autowired
-    private BookRepository bookRepository;
+   @Autowired
+    private BookService bookService; // Tiêm BookService
 
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks() {
-        List<Book> books = bookRepository.findAll();
+    public ResponseEntity<List<BookDto>> getAllBooks() {
+        List<BookDto> books = bookService.getAllBooks();
         return ResponseEntity.ok(books);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable String id) {
-        return bookRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với ID: " + id));
+    public ResponseEntity<BookDto> getBookById(@PathVariable String id) {
+        BookDto bookDto = bookService.getBookById(id);
+        return ResponseEntity.ok(bookDto);
     }
-
-    @PostMapping
-    public ResponseEntity<Book> addBook(@Valid @RequestBody Book book) {
-        // Đảm bảo mã sách được tạo tự động nếu là null hoặc trống
-        if (book.getMaSach() == null || book.getMaSach().isEmpty()) {
-            book.setMaSach(UUID.randomUUID().toString());
-        } else {
-            // Nếu mã sách được cung cấp, kiểm tra xem đã tồn tại chưa
-            if (bookRepository.existsById(book.getMaSach())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Mã sách đã tồn tại: " + book.getMaSach());
-            }
+ @PostMapping
+    public ResponseEntity<?> addBook(@Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
+        // Validation (kiểm tra BindingResult) vẫn nên ở Controller
+        // vì nó thuộc về lớp giao diện (Web Layer)
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getAllErrors().forEach(error -> {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.put(fieldName, errorMessage);
+            });
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
-        /*// --- Xử lý liên kết với Author, Publisher, Category trực tiếp trong Controller ---
-        // Tìm Author theo tên. Nếu không tìm thấy, báo lỗi.
-        Author author = authorRepository.findByTenTG(book.getTacGia())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Tác giả: " + book.getTacGia() + ". Vui lòng tạo tác giả này trước."));
-        book.setTacGia(book.getTacGia());
-
-        // Tìm Publisher theo tên. Nếu không tìm thấy, báo lỗi.
-        Publisher publisher = publisherRepository.findByTenNXB(book.getNhaXB())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Nhà xuất bản: " + book.getNhaXB() + ". Vui lòng tạo nhà xuất bản này trước."));
-        book.setNhaXB(book.getNhaXB());
-
-        // Tìm Category theo tên. Nếu không tìm thấy, báo lỗi.
-        Category category = categoryRepository.findByTenDanhMuc(book.getMaDanhMuc())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Danh mục: " + book.getMaDanhMuc() + ". Vui lòng tạo danh mục này trước."));
-        book.setMaDanhMuc(book.getMaDanhMuc());*/
-
-        
-
-        Book newBook = bookRepository.save(book);
-        return new ResponseEntity<>(newBook, HttpStatus.CREATED);
+        // Gọi phương thức addBook từ BookService
+        BookDto savedBook = bookService.addBook(bookDto);
+        return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
     }
-
     @PutMapping("/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable String id, @Valid @RequestBody Book bookDetails) {
-        Book existingBook = bookRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với ID: " + id));
+    public ResponseEntity<?> updateBook(@PathVariable String id, @Valid @RequestBody BookDto bookDetails, BindingResult bindingResult) {
+        // Validation (kiểm tra BindingResult) vẫn nên ở Controller
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getAllErrors().forEach(error -> {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.put(fieldName, errorMessage);
+            });
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
 
-        // Cập nhật các trường
-        existingBook.setTenSach(bookDetails.getTenSach());
-        existingBook.setSoLuong(bookDetails.getSoLuong());
-        existingBook.setGiaBan(bookDetails.getGiaBan());
-        existingBook.setNamXB(bookDetails.getNamXB());
-        existingBook.setDuongDanAnh(bookDetails.getDuongDanAnh());
-        existingBook.setTacGia(bookDetails.getTacGia());
-        existingBook.setMaDanhMuc(bookDetails.getMaDanhMuc());
-        existingBook.setNhaXB(bookDetails.getNhaXB());
-
-        /*// --- Xử lý liên kết với Author, Publisher, Category cho cập nhật ---
-        // Tìm Author theo tên. Nếu không tìm thấy, báo lỗi.
-        Author author = authorRepository.findByTenTG(existingBook.getTacGia())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Tác giả: " + existingBook.getTacGia() + ". Vui lòng tạo tác giả này trước."));
-        existingBook.setTacGia(existingBook.getTacGia());
-
-        // Tìm Publisher theo tên. Nếu không tìm thấy, báo lỗi.
-        Publisher publisher = publisherRepository.findByTenNXB(existingBook.getNhaXB())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Nhà xuất bản: " + existingBook.getNhaXB() + ". Vui lòng tạo nhà xuất bản này trước."));
-        existingBook.setNhaXB(existingBook.getNhaXB());
-
-        // Tìm Category theo tên. Nếu không tìm thấy, báo lỗi.
-        Category category = categoryRepository.findByTenDanhMuc(existingBook.getMaDanhMuc())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Danh mục: " + existingBook.getMaDanhMuc() + ". Vui lòng tạo danh mục này trước."));
-        existingBook.setMaDanhMuc(existingBook.getMaDanhMuc());*/
-
-        Book updatedBook = bookRepository.save(existingBook);
+        // Gọi phương thức updateBook từ BookService
+        BookDto updatedBook = bookService.updateBook(id, bookDetails);
         return ResponseEntity.ok(updatedBook);
     }
 
+
+   // Xóa sách
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable String id) {
-        if (!bookRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với ID: " + id);
-        }
-        bookRepository.deleteById(id);
+        // Service đã ném ResponseStatusException nếu không tìm thấy, Controller chỉ cần gọi
+        bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
 
     /**
      * Tìm kiếm sách theo tên sách hoặc tên tác giả.
      * @param query Chuỗi tìm kiếm (có thể là tên sách hoặc tên tác giả).
-     * @return Danh sách sách phù hợp.
+     * @return Danh sách sách phù hợp (List<BookDto>).
      */
     @GetMapping("/search")
-    public ResponseEntity<List<Book>> searchBooks(@RequestParam String query) {
-        // Tìm kiếm theo tên sách hoặc tên tác giả (sử dụng LIKE %query%)
-        return ResponseEntity.ok(bookRepository.findByTenSachContainingIgnoreCaseOrTacGiaContainingIgnoreCase(query, query));
+    public ResponseEntity<List<BookDto>> searchBooks(@RequestParam String query) { // Thay đổi kiểu trả về
+        List<BookDto> books = bookService.searchBooks(query);
+        return ResponseEntity.ok(books);
     }
 }
 

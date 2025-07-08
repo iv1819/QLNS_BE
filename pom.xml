@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version> <!-- Đảm bảo phiên bản này và JDK tương thích -->
+        <version>3.2.5</version>
         <relativePath/>
     </parent>
 
@@ -17,11 +17,11 @@
     <description>Your Spring Boot Backend API</description>
 
     <properties>
-        <java.version>17</java.version> <!-- Đảm bảo khớp với JDK bạn đang dùng -->
+        <java.version>21</java.version> <!-- Cập nhật thành JDK 21 -->
+        <lombok.version>1.18.38</lombok.version> <!-- Phiên bản mới nhất, tương thích JDK 21 -->
     </properties>
 
     <dependencies>
-        <!-- Các dependencies chính của ứng dụng -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -38,36 +38,17 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
-            <scope>provided</scope>
+            <version>${lombok.version}</version> <!-- Đồng nhất với properties -->
+            <scope>provided</scope> <!-- Thêm scope provided -->
         </dependency>
-        
-        <!-- ============================================== -->
-        <!-- ĐẢM BẢO CHỈ CÓ DEPENDENCY NÀY CHO TEST -->
-        <!-- spring-boot-starter-test sẽ tự động kéo JUnit Jupiter -->
-        <!-- ============================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope> 
+            <scope>test</scope>
         </dependency>
-        
-        <!-- Các dependency Cassandra (nếu bạn có) -->
-        <!-- <dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-cassandra</artifactId>
-        </dependency> -->
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>1.1.0.Final</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>com.guicedee.services</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-            <version>1.0.20.2-jre15</version>
-            <type>jar</type>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -77,7 +58,6 @@
 
     <build>
         <plugins>
-            <!-- ĐÂY LÀ PHẦN QUAN TRỌNG CHO SPRING BOOT -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -89,10 +69,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <!-- Nếu bạn có nhiều hơn một class @SpringBootApplication,
-                         hoặc nếu tên class chính không theo quy ước,
-                         hãy chỉ định rõ ở đây. Ví dụ: -->
-                    <!-- <mainClass>com.mycompany.qlins_be.SampleSpringApplication</mainClass> -->
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
@@ -102,11 +78,33 @@
                 </configuration>
             </plugin>
 
-            <!-- CẤU HÌNH SUREFIRE PLUGIN CHO TEST (KHÔNG THÊM DEPENDENCIES JUNIT VÀO ĐÂY) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                        <!-- Thêm để hỗ trợ JDK 21 module system -->
+                        <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
+                        <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version> <!-- Giữ nguyên phiên bản này hoặc mới nhất -->
+                <version>3.2.5</version>
                 <configuration>
                     <argLine>
                         --add-opens java.base/java.util=ALL-UNNAMED
@@ -125,7 +123,3 @@
     </build>
 
 </project>
-
-
-
-

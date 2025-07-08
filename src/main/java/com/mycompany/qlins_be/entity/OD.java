@@ -31,18 +31,21 @@ public class OD {
     private int soLuong;
    @Column(name = "don_gia")
     private double donGia;
+   @Column(name = "tong_tien")
+    private double tongTien;
     @Column(name = "ma_dh")
     private String maDH;
 
-    public OD() {
-    }
-
-    public OD(int id, String tenSach, int soLuong, double donGia, String maDH) {
+    public OD(int id, String tenSach, int soLuong, double donGia, double tongTien, String maDH) {
         this.id = id;
         this.tenSach = tenSach;
         this.soLuong = soLuong;
         this.donGia = donGia;
+        this.tongTien = tongTien;
         this.maDH = maDH;
+    }
+
+    public OD() {
     }
 
     public int getId() {
@@ -77,7 +80,13 @@ public class OD {
         this.donGia = donGia;
     }
 
-   
+    public double getTongTien() {
+        return tongTien;
+    }
+
+    public void setTongTien(double tongTien) {
+        this.tongTien = tongTien;
+    }
 
     public String getMaDH() {
         return maDH;
@@ -86,5 +95,7 @@ public class OD {
     public void setMaDH(String maDH) {
         this.maDH = maDH;
     }
+
+   
     
 }

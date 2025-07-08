@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 /**
  *
@@ -29,7 +29,6 @@ public class AuthorController {
 
     @Autowired
     private AuthorRepository authorRepository; // Tương tác trực tiếp với Repository
-
     @GetMapping
     public ResponseEntity<List<Author>> getAllAuthors() {
         List<Author> authors = authorRepository.findAll();
