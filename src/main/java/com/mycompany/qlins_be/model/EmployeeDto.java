@@ -41,18 +41,22 @@ public class EmployeeDto {
     @Min(value = 0, message = "Lương phải là số không âm!")
     private BigDecimal luong;
 
+    @NotBlank(message = "Tên công việc không được để trống!")
+    private String tenCv;
+
     // Constructor mặc định
     public EmployeeDto() {
     }
 
     // Constructor với tham số
-    public EmployeeDto(String maNv, String tenNv, LocalDate ngaySinh, LocalDate ngayVaoLam, String sdt, BigDecimal luong) {
+    public EmployeeDto(String maNv, String tenNv, LocalDate ngaySinh, LocalDate ngayVaoLam, String sdt, BigDecimal luong, String tenCv) {
         this.maNv = maNv;
         this.tenNv = tenNv;
         this.ngaySinh = ngaySinh;
         this.ngayVaoLam = ngayVaoLam;
         this.sdt = sdt;
         this.luong = luong;
+        this.tenCv = tenCv;
     }
 
     // Getter và Setter methods
@@ -104,6 +108,13 @@ public class EmployeeDto {
         this.luong = luong;
     }
 
+    public String getTenCv() {
+        return tenCv;
+    }
+    public void setTenCv(String tenCv) {
+        this.tenCv = tenCv;
+    }
+
     @Override
     public String toString() {
         return "EmployeeDto{" +
@@ -113,6 +124,7 @@ public class EmployeeDto {
                 ", ngayVaoLam=" + ngayVaoLam +
                 ", sdt='" + sdt + '\'' +
                 ", luong=" + luong +
+                ", tenCv='" + tenCv + '\'' +
                 '}';
     }
 } 

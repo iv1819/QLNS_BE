@@ -31,6 +31,12 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
     // Kiểm tra trùng lặp tên (không phân biệt hoa thường)
     boolean existsByTenNvIgnoreCase(String tenNv);
 
+    // Kiểm tra trùng số điện thoại
+    boolean existsBySdt(String sdt);
+
     // Tìm nhân viên theo tên (không phân biệt hoa thường) để kiểm tra khi cập nhật
     Optional<Employee> findByTenNvIgnoreCase(String tenNv);
+
+    @Query("SELECT DISTINCT e.tenCv FROM Employee e")
+    List<String> findAllDistinctTenCv();
 } 

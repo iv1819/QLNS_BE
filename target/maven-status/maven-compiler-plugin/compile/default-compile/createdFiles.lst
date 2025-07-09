@@ -16,6 +16,7 @@ com\mycompany\qlins_be\repository\OrderRepository.class
 com\mycompany\qlins_be\controller\PublisherController.class
 com\mycompany\qlins_be\entity\Customer.class
 com\mycompany\qlins_be\model\BookDto.class
+com\mycompany\qlins_be\service\EmployeeService.class
 com\mycompany\qlins_be\repository\EmployeeRepository.class
 com\mycompany\qlins_be\controller\AuthorController.class
 com\mycompany\qlins_be\repository\AuthorRepository.class
