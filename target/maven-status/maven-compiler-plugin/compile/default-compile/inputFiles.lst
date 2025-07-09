@@ -2,7 +2,9 @@ C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\q
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\SampleSpringApplication.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\controller\UploadController.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\entity\Publisher.java
+C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\service\CustomerService.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\controller\OrderController.java
+C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\controller\CustomerController.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\entity\Author.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\service\EmployeeService.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\repository\AccountRepository.java
@@ -14,6 +16,7 @@ C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\q
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\model\BookDto.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\controller\BookController.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\entity\Order.java
+C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\model\CustomerDto.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\IndexController.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\repository\BookRepository.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\entity\Category.java
@@ -22,6 +25,7 @@ C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\q
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\repository\CategoryRepository.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\entity\Account.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\repository\PublisherRepository.java
+C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\repository\CustomerRepository.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\entity\Book.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\repository\ODRepository.java
 C:\Users\LAPTOP\Documents\NetBeansProjects\QLNS_BE\src\main\java\com\mycompany\qlins_be\controller\PublisherController.java

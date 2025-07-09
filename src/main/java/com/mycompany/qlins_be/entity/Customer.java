@@ -11,46 +11,23 @@ import org.hibernate.annotations.UuidGenerator;
 @Table(name = "khachhang", schema = "dbo")
 public class Customer {
     @Id
-    @UuidGenerator
     @Column(name = "ma_kh")
     private String maKh;
     
-    @Nationalized   
     @Column(name = "ten_kh")
     private String tenKh;
     
     @Column(name = "sdt")
     private String sdt;
     
-    @Column(name = "email")
-    private String email;
-    
-    @Nationalized   
-    @Column(name = "dia_chi")
-    private String diaChi;
-    
-    @Column(name = "ngay_sinh")
-    private String ngaySinh;
-    
-    @Column(name = "gioi_tinh")
-    private String gioiTinh;
+    public Customer() {}
 
-    // Constructor mặc định
-    public Customer() {
-    }
-
-    // Constructor với tham số
-    public Customer(String maKh, String tenKh, String sdt, String email, String diaChi, String ngaySinh, String gioiTinh) {
+    public Customer(String maKh, String tenKh, String sdt) {
         this.maKh = maKh;
         this.tenKh = tenKh;
         this.sdt = sdt;
-        this.email = email;
-        this.diaChi = diaChi;
-        this.ngaySinh = ngaySinh;
-        this.gioiTinh = gioiTinh;
     }
 
-    // Getters và Setters
     public String getMaKh() {
         return maKh;
     }
@@ -75,48 +52,12 @@ public class Customer {
         this.sdt = sdt;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getDiaChi() {
-        return diaChi;
-    }
-
-    public void setDiaChi(String diaChi) {
-        this.diaChi = diaChi;
-    }
-
-    public String getNgaySinh() {
-        return ngaySinh;
-    }
-
-    public void setNgaySinh(String ngaySinh) {
-        this.ngaySinh = ngaySinh;
-    }
-
-    public String getGioiTinh() {
-        return gioiTinh;
-    }
-
-    public void setGioiTinh(String gioiTinh) {
-        this.gioiTinh = gioiTinh;
-    }
-
     @Override
     public String toString() {
         return "Customer{" +
                 "maKh='" + maKh + '\'' +
                 ", tenKh='" + tenKh + '\'' +
                 ", sdt='" + sdt + '\'' +
-                ", email='" + email + '\'' +
-                ", diaChi='" + diaChi + '\'' +
-                ", ngaySinh='" + ngaySinh + '\'' +
-                ", gioiTinh='" + gioiTinh + '\'' +
                 '}';
     }
 } 
