@@ -29,16 +29,27 @@ public class Account {
     private String chucVu;
    @Column(name = "trang_thai")
     private String trangThai;
-
+@Column(name = "ten_nv")
+    private String tennv;
     public Account() {
     }
 
-    public Account(String taiKhoan, String matKhau, String chucVu, String trangThai) {
+    public String getTennv() {
+        return tennv;
+    }
+
+    public void setTennv(String tennv) {
+        this.tennv = tennv;
+    }
+
+    public Account(String taiKhoan, String matKhau, String chucVu, String trangThai, String tennv) {
         this.taiKhoan = taiKhoan;
         this.matKhau = matKhau;
         this.chucVu = chucVu;
         this.trangThai = trangThai;
+        this.tennv = tennv;
     }
+
 
     public String getTaiKhoan() {
         return taiKhoan;

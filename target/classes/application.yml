@@ -25,7 +25,7 @@ spring:
   mvc:
     static-path-pattern: /uploads/**
   datasource:
-    url: jdbc:sqlserver://LAPTOP-35O054C8\\MSSQLSERVER01:50055;databaseName=QLNS_API;encrypt=false
+    url: jdbc:sqlserver://localhost:1433;databaseName=QLNS_API;encrypt=false
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: user1
     password: 12345

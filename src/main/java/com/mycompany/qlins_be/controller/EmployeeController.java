@@ -1,17 +1,18 @@
 package com.mycompany.qlins_be.controller;
 
-import com.mycompany.qlins_be.entity.Employee;
-import com.mycompany.qlins_be.repository.EmployeeRepository;
+import com.mycompany.qlins_be.model.EmployeeDto;
+import com.mycompany.qlins_be.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import jakarta.validation.Valid;
-import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/employees")
@@ -19,108 +20,101 @@ import java.math.BigDecimal;
 public class EmployeeController {
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeService employeeService;
 
-    // GET /api/employees - Lấy tất cả nhân viên
+    // GET /employees - Lấy tất cả nhân viên
     @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployees() {
-        List<Employee> employees = employeeRepository.findAll();
+    public ResponseEntity<List<EmployeeDto>> getAllEmployees() {
+        List<EmployeeDto> employees = employeeService.getAllEmployees();
         return ResponseEntity.ok(employees);
     }
 
-    // GET /api/employees/{id} - Lấy nhân viên theo ID
+    // GET /employees/{id} - Lấy nhân viên theo ID
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable String id) {
-        return employeeRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy nhân viên với ID: " + id));
+    public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable String id) {
+        EmployeeDto employeeDto = employeeService.getEmployeeById(id);
+        return ResponseEntity.ok(employeeDto);
     }
 
     // POST /employees - Thêm nhân viên mới
     @PostMapping
-    public ResponseEntity<Employee> addEmployee(@Valid @RequestBody Employee employee) {
-        // Tạo mã nhân viên mới nếu không có
-        if (employee.getMaNv() == null || employee.getMaNv().trim().isEmpty()) {
-            employee.setMaNv(UUID.randomUUID().toString());
+    public ResponseEntity<?> addEmployee(@Valid @RequestBody EmployeeDto employeeDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getAllErrors().forEach(error -> {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.put(fieldName, errorMessage);
+            });
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
-
-        // Kiểm tra trùng mã nhân viên
-        if (employeeRepository.existsById(employee.getMaNv())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Mã nhân viên '" + employee.getMaNv() + "' đã tồn tại.");
-        }
-        // Kiểm tra trùng tên nhân viên
-        if (employeeRepository.existsByTenNvIgnoreCase(employee.getTenNv())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tên nhân viên '" + employee.getTenNv() + "' đã tồn tại.");
-        }
-
-        Employee newEmployee = employeeRepository.save(employee);
-        return new ResponseEntity<>(newEmployee, HttpStatus.CREATED);
+        EmployeeDto savedEmployee = employeeService.addEmployee(employeeDto);
+        return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
 
     // PUT /employees/{id} - Cập nhật nhân viên
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable String id, @Valid @RequestBody Employee employeeDetails) {
-        // Tìm nhân viên hiện có
-        Employee existingEmployee = employeeRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy nhân viên với ID: " + id));
-
-        // Kiểm tra xem tên có thay đổi không và nếu có thì có bị trùng không
-        if (!existingEmployee.getTenNv().equalsIgnoreCase(employeeDetails.getTenNv())) {
-            Optional<Employee> employeeWithSameName = employeeRepository.findByTenNvIgnoreCase(employeeDetails.getTenNv());
-            if (employeeWithSameName.isPresent()) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Tên nhân viên '" + employeeDetails.getTenNv() + "' đã tồn tại.");
-            }
+    public ResponseEntity<?> updateEmployee(@PathVariable String id, @Valid @RequestBody EmployeeDto employeeDetails, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getAllErrors().forEach(error -> {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.put(fieldName, errorMessage);
+            });
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
-
-        // Cập nhật các trường
-        existingEmployee.setTenNv(employeeDetails.getTenNv());
-        existingEmployee.setNgaySinh(employeeDetails.getNgaySinh());
-        existingEmployee.setNgayVaoLam(employeeDetails.getNgayVaoLam());
-        existingEmployee.setSdt(employeeDetails.getSdt());
-        existingEmployee.setLuong(employeeDetails.getLuong());
-
-        Employee updatedEmployee = employeeRepository.save(existingEmployee);
+        EmployeeDto updatedEmployee = employeeService.updateEmployee(id, employeeDetails);
         return ResponseEntity.ok(updatedEmployee);
     }
 
     // DELETE /employees/{id} - Xóa nhân viên
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable String id) {
-        if (!employeeRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy nhân viên với ID: " + id);
-        }
-        employeeRepository.deleteById(id);
+        employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
     }
 
-    // GET /api/employees/search?query=... - Tìm kiếm nhân viên
+    // GET /employees/search?query=... - Tìm kiếm nhân viên
     @GetMapping("/search")
-    public ResponseEntity<List<Employee>> searchEmployees(@RequestParam String query) {
-        // Tìm kiếm theo tên nhân viên hoặc số điện thoại
-        List<Employee> employees = employeeRepository.findByTenNvContainingIgnoreCaseOrSdtContaining(query, query);
+    public ResponseEntity<List<EmployeeDto>> searchEmployees(@RequestParam String query) {
+        List<EmployeeDto> employees = employeeService.searchEmployees(query);
         return ResponseEntity.ok(employees);
     }
 
-    // GET /api/employees/search/name?name=... - Tìm kiếm theo tên
+    // GET /employees/search/name?name=... - Tìm kiếm theo tên
     @GetMapping("/search/name")
-    public ResponseEntity<List<Employee>> searchEmployeesByName(@RequestParam String name) {
-        List<Employee> employees = employeeRepository.findByTenNvContainingIgnoreCase(name);
+    public ResponseEntity<List<EmployeeDto>> searchEmployeesByName(@RequestParam String name) {
+        List<EmployeeDto> employees = employeeService.searchEmployeesByName(name);
         return ResponseEntity.ok(employees);
     }
 
-    // GET /api/employees/search/phone?phone=... - Tìm kiếm theo số điện thoại
+    // GET /employees/search/phone?phone=... - Tìm kiếm theo số điện thoại
     @GetMapping("/search/phone")
-    public ResponseEntity<List<Employee>> searchEmployeesByPhone(@RequestParam String phone) {
-        List<Employee> employees = employeeRepository.findBySdtContaining(phone);
+    public ResponseEntity<List<EmployeeDto>> searchEmployeesByPhone(@RequestParam String phone) {
+        List<EmployeeDto> employees = employeeService.searchEmployeesByPhone(phone);
         return ResponseEntity.ok(employees);
     }
 
-    // GET /api/employees/search/salary?min=...&max=... - Tìm kiếm theo khoảng lương
+    // GET /employees/search/salary?min=...&max=... - Tìm kiếm theo khoảng lương
     @GetMapping("/search/salary")
-    public ResponseEntity<List<Employee>> searchEmployeesBySalaryRange(
+    public ResponseEntity<List<EmployeeDto>> searchEmployeesBySalaryRange(
             @RequestParam BigDecimal min, 
             @RequestParam BigDecimal max) {
-        List<Employee> employees = employeeRepository.findByLuongBetween(min, max);
+        List<EmployeeDto> employees = employeeService.searchEmployeesBySalaryRange(min, max);
         return ResponseEntity.ok(employees);
+    }
+
+    // GET /employees/auto-id - Lấy mã nhân viên tự động
+    @GetMapping("/auto-id")
+    public ResponseEntity<String> getAutoEmployeeId() {
+        String autoId = employeeService.generateAutoEmployeeId();
+        return ResponseEntity.ok(autoId);
+    }
+
+    // GET /employees/positions - Lấy danh sách tên công việc (chức vụ)
+    @GetMapping("/positions")
+    public ResponseEntity<List<String>> getAllPositions() {
+        return ResponseEntity.ok(employeeService.getAllDistinctTenCv());
     }
 } 

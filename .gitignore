@@ -23,3 +23,7 @@
 hs_err_pid*
 replay_pid*
 /target/
+target/
+src/main/resources/application.yml
+target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
