@@ -52,32 +52,35 @@ public class AccountController {
         }
         return response;
     }
-     @PostMapping("/register")
+
+    @PostMapping("/register")
     public ResponseEntity<?> registerAccount(@Valid @RequestBody AccountDto accountDto, BindingResult bindingResult) {
-        // Xử lý lỗi validation từ @Valid
+        Map<String, String> errors = new HashMap<>();
+
+        // Bắt lỗi validation cơ bản
         if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getAllErrors().forEach(error -> {
-                String fieldName = ((FieldError) error).getField();
-                String errorMessage = error.getDefaultMessage();
-                errors.put(fieldName, errorMessage);
-            });
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errors.put(error.getField(), error.getDefaultMessage());
+            }
+        }
+
+        // Bắt lỗi xác minh mật khẩu và lặp lại mật khẩu
+        if (!accountDto.getMatKhau().equals(accountDto.getConfirmPassword())) {
+            errors.put("confirmPassword", "Mật khẩu lặp lại không khớp!");
+        }
+
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
         }
 
         try {
             AccountDto registeredAccount = accountService.registerAccount(accountDto);
-            return new ResponseEntity<>(registeredAccount, HttpStatus.CREATED);
-        } catch (ResponseStatusException e) {
-            // Bắt các ngoại lệ ResponseStatusException ném ra từ service
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("message", e.getReason());
-            return new ResponseEntity<>(errorResponse, e.getStatusCode());
-        } catch (Exception e) {
-            // Xử lý các ngoại lệ không xác định
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("message", "Lỗi nội bộ server: " + e.getMessage());
-            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.CREATED).body(registeredAccount);
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(Map.of("message", ex.getReason()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Lỗi nội bộ server: " + ex.getMessage()));
         }
     }
 
