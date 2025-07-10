@@ -5,7 +5,9 @@
 package com.mycompany.qlins_be.controller;
 
 import com.mycompany.qlins_be.entity.Author;
+import com.mycompany.qlins_be.model.AuthorDto;
 import com.mycompany.qlins_be.repository.AuthorRepository;
+import com.mycompany.qlins_be.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,65 +30,49 @@ import jakarta.validation.Valid;
 public class AuthorController {
 
     @Autowired
-    private AuthorRepository authorRepository; // Tương tác trực tiếp với Repository
+    private AuthorService authorService;
+
     @GetMapping
-    public ResponseEntity<List<Author>> getAllAuthors() {
-        List<Author> authors = authorRepository.findAll();
+    public ResponseEntity<List<AuthorDto>> getAllAuthors() {
+        List<AuthorDto> authors = authorService.getAllAuthors();
         return ResponseEntity.ok(authors);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Author> getAuthorById(@PathVariable String id) {
-        return authorRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với ID: " + id));
+    public ResponseEntity<AuthorDto> getAuthorById(@PathVariable String id) {
+        AuthorDto authorDto = authorService.getAuthorById(id);
+        return ResponseEntity.ok(authorDto);
     }
 
     @PostMapping
-    public ResponseEntity<Author> addAuthor(@Valid @RequestBody Author author) {
-        // Kiểm tra xem tác giả đã tồn tại chưa (theo tên) để tránh trùng lặp
-        if (authorRepository.findByTenTG(author.getTenTG()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tên tác giả đã tồn tại: " + author.getTenTG());
-        }
-        // Nếu maTG không được cung cấp, tự động tạo UUID
-        if (author.getMaTG() == null || author.getMaTG().isEmpty()) {
-            author.setMaTG(UUID.randomUUID().toString());
-        }
-        Author newAuthor = authorRepository.save(author);
+    public ResponseEntity<AuthorDto> addAuthor(@Valid @RequestBody AuthorDto authorDto) {
+        AuthorDto newAuthor = authorService.addAuthor(authorDto);
         return new ResponseEntity<>(newAuthor, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Author> updateAuthor(@PathVariable String id, @Valid @RequestBody Author authorDetails) {
-        Author author = authorRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với ID: " + id));
-
-        // Kiểm tra trùng tên với các tác giả khác (trừ chính tác giả đang cập nhật)
-        Optional<Author> existingAuthorWithSameName = authorRepository.findByTenTG(authorDetails.getTenTG());
-        if (existingAuthorWithSameName.isPresent() && !existingAuthorWithSameName.get().getMaTG().equals(id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tên tác giả đã tồn tại: " + authorDetails.getTenTG());
-        }
-
-        author.setTenTG(authorDetails.getTenTG());
-        Author updatedAuthor = authorRepository.save(author);
+    public ResponseEntity<AuthorDto> updateAuthor(@PathVariable String id, @Valid @RequestBody AuthorDto authorDto) {
+        AuthorDto updatedAuthor = authorService.updateAuthor(id, authorDto);
         return ResponseEntity.ok(updatedAuthor);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAuthor(@PathVariable String id) {
-        if (!authorRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với ID: " + id);
-        }
-        authorRepository.deleteById(id);
+        authorService.deleteAuthor(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<AuthorDto>> searchAuthors(@RequestParam String keyword) {
+        List<AuthorDto> authors = authorService.searchByTenTG(keyword);
+        return ResponseEntity.ok(authors);
     }
 
     // Endpoint để lấy chỉ tên tác giả cho ComboBox ở frontend
     @GetMapping("/names")
     public ResponseEntity<List<String>> getAllAuthorNames() {
-        List<String> names = authorRepository.findAll().stream() // Gọi trực tiếp repository
-                                     .map(Author::getTenTG)
-                                     .collect(Collectors.toList());
+        List<String> names = authorService.getAllAuthorNames(); // Gọi qua Service
         return ResponseEntity.ok(names);
     }
+
 }

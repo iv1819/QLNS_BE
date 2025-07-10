@@ -46,7 +46,8 @@ public class BookDto {
     @NotBlank(message = "Mã danh mục không được để trống!")
     private String maDanhMuc; // Mã danh mục
 
-
+    @NotBlank(message = "Mã tác giả không được để trống!") // ✅ Thêm dòng này
+    private String maTG;
     
 }
 

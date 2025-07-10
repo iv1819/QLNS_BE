@@ -4,10 +4,7 @@
  */
 package com.mycompany.qlins_be.entity;
 
-import jakarta.persistence.Entity; // Sử dụng jakarta.persistence cho Spring Boot 3+
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -39,6 +36,18 @@ public class Book {
  @Nationalized   
     @Column(name = "ten_dm") // Khóa ngoại tới bảng Category
     private String maDanhMuc;
+
+    @ManyToOne
+    @JoinColumn(name = "ma_tg", referencedColumnName = "ma_tg") // Khóa ngoại trỏ đến Author
+    private Author author;
+
+    public Author getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
 
     // Constructor mặc định (cần thiết cho JPA và Jackson)
     public Book() {
