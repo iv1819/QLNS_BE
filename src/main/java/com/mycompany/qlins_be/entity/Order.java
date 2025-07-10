@@ -29,16 +29,29 @@ public class Order {
     private Date ngayBan;
    @Column(name = "tong_tien")
     private double tongTien;
-
+@Nationalized   
+    @Column(name = "ten_nv")
+    private String tennv;
     public Order() {
     }
 
-    public Order(String maDH, String tenKH, Date ngayBan, double tongTien) {
+    public Order(String maDH, String tenKH, Date ngayBan, double tongTien, String tennv) {
         this.maDH = maDH;
         this.tenKH = tenKH;
         this.ngayBan = ngayBan;
         this.tongTien = tongTien;
+        this.tennv = tennv;
     }
+
+    public String getTennv() {
+        return tennv;
+    }
+
+    public void setTennv(String tennv) {
+        this.tennv = tennv;
+    }
+
+    
 
     public String getMaDH() {
         return maDH;
