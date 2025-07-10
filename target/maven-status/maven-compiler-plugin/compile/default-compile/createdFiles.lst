@@ -13,6 +13,7 @@ com\mycompany\qlins_be\repository\ODRepository.class
 com\mycompany\qlins_be\controller\AccountController.class
 com\mycompany\qlins_be\entity\Order.class
 com\mycompany\qlins_be\repository\OrderRepository.class
+com\mycompany\qlins_be\model\AuthorDto.class
 com\mycompany\qlins_be\controller\PublisherController.class
 com\mycompany\qlins_be\entity\Customer.class
 com\mycompany\qlins_be\model\BookDto.class
