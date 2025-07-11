@@ -5,6 +5,7 @@
 package com.mycompany.qlins_be.controller;
 
 import com.mycompany.qlins_be.model.AccountDto;
+import com.mycompany.qlins_be.model.UpdateaccountDto;
 import com.mycompany.qlins_be.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,8 @@ public class AccountController {
         }
         return response;
     }
-     @PostMapping("/register")
+
+    @PostMapping("/register")
     public ResponseEntity<?> registerAccount(@Valid @RequestBody AccountDto accountDto, BindingResult bindingResult) {
         Map<String, String> errors = new HashMap<>();
 
@@ -66,6 +68,10 @@ public class AccountController {
         // Bắt lỗi xác minh mật khẩu và lặp lại mật khẩu
         if (!accountDto.getMatKhau().equals(accountDto.getConfirmPassword())) {
             errors.put("confirmPassword", "Mật khẩu lặp lại không khớp!");
+        }
+
+        if (accountService.existsByTaiKhoan(accountDto.getTaiKhoan())) {
+            errors.put("taiKhoan", "Tài khoản đã tồn tại!");
         }
 
         if (!errors.isEmpty()) {
@@ -99,8 +105,8 @@ public class AccountController {
 
     // Endpoint to update an account
     @PutMapping("/{taiKhoan}")
-    public ResponseEntity<AccountDto> updateAccount(@PathVariable String taiKhoan, @Valid @RequestBody AccountDto accountDto) {
-        AccountDto updatedAccount = accountService.updateAccount(taiKhoan, accountDto);
+    public ResponseEntity<AccountDto> updateAccount(@PathVariable String taiKhoan, @Valid @RequestBody UpdateaccountDto updateaccountDto) {
+        AccountDto updatedAccount = accountService.updateAccount(taiKhoan, updateaccountDto);
         return ResponseEntity.ok(updatedAccount);
     }
 
@@ -110,5 +116,12 @@ public class AccountController {
         accountService.deleteAccount(taiKhoan);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<AccountDto>> searchAccounts(@RequestParam String keyword) {
+        List<AccountDto> results = accountService.searchAccounts(keyword);
+        return ResponseEntity.ok(results);
+    }
+
 }
 

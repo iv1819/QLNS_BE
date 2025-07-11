@@ -32,7 +32,7 @@ public class AuthorController {
         List<AuthorDto> authors = authorService.getAllAuthors();
         return ResponseEntity.ok(authors);
     }
-@GetMapping("/findid")
+    @GetMapping("/findid")
     public ResponseEntity<AuthorDto> getAuthorByTenTG(@RequestParam String tenTG) {
         AuthorDto authorDto = authorService.getAuthorByTenTG(tenTG);
         return ResponseEntity.ok(authorDto);

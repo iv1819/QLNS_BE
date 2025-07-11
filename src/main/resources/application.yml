@@ -22,18 +22,22 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
       max-age: 3600
+
   mvc:
     static-path-pattern: /uploads/**
+
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=QLNS_API;encrypt=false
-    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    username: user1
-    password: 12345
+    url: jdbc:mysql://localhost:3306/QLNS_API?useSSL=false&serverTimezone=UTC
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
-    database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
       ddl-auto: update
     show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
   cassandra:
     schema-action: CREATE_IF_NOT_EXISTS
 
