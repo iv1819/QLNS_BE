@@ -15,8 +15,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ODRepository extends JpaRepository<OD, Integer>{
-    List<OD> findByMaDH(String maDH); 
-    void deleteByMaDH(String maDH);
-boolean existsByMaDH(String maDH);
+    List<OD> findByOrder_MaDH(String maDH); 
+    void deleteByOrder_MaDH(String maDH);
 
 }

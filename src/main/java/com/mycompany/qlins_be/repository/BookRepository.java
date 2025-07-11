@@ -25,7 +25,6 @@ Optional<Book> findByTenSach(String tenSach);
     List<Book> findByTenSachContainingIgnoreCase(String tenSach); 
        List<Book> findByTenSachContainingIgnoreCaseOrAuthorTenTGContainingIgnoreCase(String tenSach, String tenTacGia);
 
-     // New: Find books by category with pagination
-     Page<Book> findByDm_MaDanhMuc(String maDanhMuc, Pageable pageable);
+     List<Book> findByDm_MaDanhMuc(String maDanhMuc);
 
 }

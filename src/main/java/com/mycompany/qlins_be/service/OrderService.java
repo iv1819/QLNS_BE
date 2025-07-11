@@ -45,7 +45,9 @@ public class OrderService {
     // Helper method to convert DTO to Entity
     private Order convertToEntity(OrderDto orderDto) {
         Order order = new Order();
-        order.setMaDH(orderDto.getMaDH()); // MaDH có thể được sinh hoặc truyền vào khi update
+        String madh = orderDto.getMaDH();
+        String finalmaDh = (madh == null || madh.isEmpty()) ? null : madh;
+        order.setMaDH(finalmaDh);
         order.setTenKH(orderDto.getTenKH());
         order.setNgayBan(orderDto.getNgayBan() != null ? Date.valueOf(orderDto.getNgayBan()) : null); // Convert LocalDate to java.sql.Date
         order.setTongTien(orderDto.getTongTien());
@@ -74,14 +76,11 @@ public class OrderService {
     }
 
     
-    @Transactional // Đảm bảo cả hai thao tác (xóa OD và xóa Order) cùng thành công hoặc thất bại
     public void deleteOrder(String id) {
         // Kiểm tra xem đơn hàng có tồn tại không
         if (!orderRepository.existsById(id)) {
             throw new RuntimeException("Order not found with id " + id); // Hoặc throw ResponseStatusException
         }
-        // Xóa tất cả chi tiết đơn hàng liên quan trước
-        odService.deleteODByMaDH(id); // Gọi service để xóa ODs
 
         // Sau đó xóa đơn hàng
         orderRepository.deleteById(id);

@@ -32,7 +32,11 @@ public class AuthorController {
         List<AuthorDto> authors = authorService.getAllAuthors();
         return ResponseEntity.ok(authors);
     }
-
+@GetMapping("/findid")
+    public ResponseEntity<AuthorDto> getAuthorByTenTG(@RequestParam String tenTG) {
+        AuthorDto authorDto = authorService.getAuthorByTenTG(tenTG);
+        return ResponseEntity.ok(authorDto);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<AuthorDto> getAuthorById(@PathVariable String id) {
         AuthorDto authorDto = authorService.getAuthorById(id);

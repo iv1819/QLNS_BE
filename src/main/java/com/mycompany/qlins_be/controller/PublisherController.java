@@ -31,7 +31,13 @@ public class PublisherController {
         List<Publisher> publishers = publisherRepository.findAll();
         return ResponseEntity.ok(publishers);
     }
-
+ @GetMapping("/findid")
+    public ResponseEntity<String> findIdByTenNXB(@RequestParam String tenNXB) {
+        return publisherRepository.findByTenNXB(tenNXB)
+            .map(publisher -> ResponseEntity.ok(publisher.getMaNXB()))
+            .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Không tìm thấy NXB với tên: " + tenNXB));
+    }
     @GetMapping("/{id}")
     public ResponseEntity<Publisher> getPublisherById(@PathVariable String id) {
         return publisherRepository.findById(id)

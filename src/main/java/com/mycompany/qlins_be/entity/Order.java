@@ -4,11 +4,15 @@
  */
 package com.mycompany.qlins_be.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -34,7 +38,12 @@ public class Order {
     private String tennv;
     public Order() {
     }
+ @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OD> ods = new ArrayList<>();
 
+    public List<OD> getOds() {
+        return ods;
+    }
     public Order(String maDH, String tenKH, Date ngayBan, double tongTien, String tennv) {
         this.maDH = maDH;
         this.tenKH = tenKH;

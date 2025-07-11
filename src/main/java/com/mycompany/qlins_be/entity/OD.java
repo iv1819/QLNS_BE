@@ -9,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UuidGenerator;
@@ -33,16 +35,17 @@ public class OD {
     private double donGia;
    @Column(name = "tong_tien")
     private double tongTien;
-    @Column(name = "ma_dh")
-    private String maDH;
+   @ManyToOne
+    @JoinColumn(name = "ma_dh", referencedColumnName = "ma_dh") 
+    private Order order;
 
-    public OD(int id, String tenSach, int soLuong, double donGia, double tongTien, String maDH) {
+    public OD(int id, String tenSach, int soLuong, double donGia, double tongTien, Order order) {
         this.id = id;
         this.tenSach = tenSach;
         this.soLuong = soLuong;
         this.donGia = donGia;
         this.tongTien = tongTien;
-        this.maDH = maDH;
+        this.order = order;
     }
 
     public OD() {
@@ -88,13 +91,14 @@ public class OD {
         this.tongTien = tongTien;
     }
 
-    public String getMaDH() {
-        return maDH;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setMaDH(String maDH) {
-        this.maDH = maDH;
+    public void setOrder(Order order) {
+        this.order = order;
     }
+
 
    
     

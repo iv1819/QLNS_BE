@@ -51,13 +51,6 @@ public class BookService {
                 .map(this::convertToDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với ID: " + id));
     }
-  public Page<BookDto> getBooksByMaDanhMuc(String maDanhMuc, int page, int size) {
-        // Create a Pageable object for pagination
-        Pageable pageable = PageRequest.of(page, size);
-          Page<Book> bookPage = bookRepository.findByDm_MaDanhMuc(maDanhMuc, pageable); 
-        // Convert Page<Book> to Page<BookDto>
-        return bookPage.map(this::convertToDto);
-    }
 
     // Thêm sách mới
     public BookDto addBook(BookDto bookDto) {
@@ -88,8 +81,8 @@ public class BookService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với ID: " + bookDetailsDto.getMaTacGia()));
         Publisher nxb = pubRepo.findById(bookDetailsDto.getMaNXB())
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy NXB với ID: " + bookDetailsDto.getMaNXB()));
-        Category dm = caRepo.findById(bookDetailsDto.getMaDM())
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục với ID: " + bookDetailsDto.getMaDM()));
+        Category dm = caRepo.findById(bookDetailsDto.getMaDanhMuc())
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục với ID: " + bookDetailsDto.getMaDanhMuc()));
         existingBook.setTenSach(bookDetailsDto.getTenSach());
         existingBook.setSoLuong(bookDetailsDto.getSoLuong());
         existingBook.setGiaBan(bookDetailsDto.getGiaBan());
@@ -135,8 +128,8 @@ public class BookService {
             bookDto.setTenNXB(book.getNxb().getTenNXB());
         } 
         if (book.getDm()!= null) {
-            bookDto.setMaDM(book.getDm().getMaDanhMuc());
-            bookDto.setTenDM(book.getDm().getTenDanhMuc());
+            bookDto.setMaDanhMuc(book.getDm().getMaDanhMuc());
+            bookDto.setTenDanhMuc(book.getDm().getTenDanhMuc());
         } 
         bookDto.setDuongDanAnh(book.getDuongDanAnh());
         bookDto.setNamXB(book.getNamXB());
@@ -146,7 +139,9 @@ public class BookService {
     // Phương thức chuyển đổi DTO sang Entity
     private Book convertToEntity(BookDto bookDto) {
         Book book = new Book();
-        book.setMaSach(bookDto.getMaSach());
+        String masach = bookDto.getMaSach();
+        String finalmaSach = (masach == null || masach.isEmpty()) ? null : masach;
+        book.setMaSach(finalmaSach);
         book.setTenSach(bookDto.getTenSach());
         book.setSoLuong(bookDto.getSoLuong());
         book.setGiaBan(bookDto.getGiaBan());
@@ -161,9 +156,9 @@ public class BookService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy NXB với ID: " + bookDto.getMaNXB()));
             book.setNxb(nxb);
         } 
-  if (bookDto.getMaDM()!= null && !bookDto.getMaDM().isEmpty()) {
-            Category dm = caRepo.findById(bookDto.getMaDM())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục với ID: " + bookDto.getMaDM()));
+  if (bookDto.getMaDanhMuc()!= null && !bookDto.getMaDanhMuc().isEmpty()) {
+            Category dm = caRepo.findById(bookDto.getMaDanhMuc())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục với ID: " + bookDto.getMaDanhMuc()));
             book.setDm(dm);
         } 
  book.setDuongDanAnh(bookDto.getDuongDanAnh());

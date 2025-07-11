@@ -31,10 +31,17 @@ public class AuthorService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với ID: " + id));
         return convertToDto(author);
     }
+     public AuthorDto getAuthorByTenTG(String tenTG) {
+        Author author = authorRepository.findByTenTG(tenTG)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với tên: " + tenTG));
+        return convertToDto(author);
+    }
 
     public AuthorDto addAuthor(AuthorDto authorDto) {
         // Kiểm tra nếu maTG được cung cấp và không rỗng
-        if (authorDto.getMaTG() != null && !authorDto.getMaTG().isEmpty()) {
+        if (authorDto.getMaTG() == null || authorDto.getMaTG().isEmpty()) {
+            authorDto.setMaTG(UUID.randomUUID().toString());
+        } else if (authorDto.getMaTG() != null && !authorDto.getMaTG().isEmpty()) {
             if (authorRepository.existsById(authorDto.getMaTG())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Mã tác giả đã tồn tại: " + authorDto.getMaTG());
             }

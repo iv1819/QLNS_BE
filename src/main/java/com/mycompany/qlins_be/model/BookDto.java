@@ -46,8 +46,8 @@ public class BookDto {
     private Integer namXB; // Sử dụng Integer để có thể nhận null
 
    @NotBlank(message = "Mã nhà danh mục không được để trống!")
-    private String maDM; 
-    private String tenDM; 
+    private String maDanhMuc; 
+    private String tenDanhMuc; 
 
 
     
