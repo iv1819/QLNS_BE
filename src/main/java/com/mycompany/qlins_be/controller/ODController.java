@@ -78,7 +78,7 @@ public class ODController {
     @DeleteMapping("/madh/{maDH}")
     public ResponseEntity<Void> deleteODByMaDH(@PathVariable String maDH) {
         try {
-            odService.deleteODsByMaDH(maDH);
+            odService.deleteODByMaDH(maDH);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             // Xử lý lỗi nếu có, ví dụ: đơn hàng không tồn tại

@@ -80,7 +80,12 @@ public class BookController {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
-
+@GetMapping("/categories/{maDM}") 
+    public ResponseEntity<List<BookDto>> getBooksByCategory(@PathVariable String maDM) {
+        List<BookDto> books = bookService.getBooksByMaDM(maDM); // Gọi hàm đã sửa trong BookService
+        // Spring sẽ tự động trả về HttpStatus.OK (200) và danh sách sách (có thể rỗng)
+        return ResponseEntity.ok(books);
+    }
     /**
      * Tìm kiếm sách theo tên sách hoặc tên tác giả.
      * @param query Chuỗi tìm kiếm (có thể là tên sách hoặc tên tác giả).

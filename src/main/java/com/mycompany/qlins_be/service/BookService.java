@@ -23,21 +23,26 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 @Service // Đánh dấu đây là một Spring Service
 public class BookService {
 
     @Autowired
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
  @Autowired
-    private AuthorRepository authorRepository;
+    private final AuthorRepository authorRepository;
   @Autowired
-    private PublisherRepository pubRepo;
+    private final PublisherRepository pubRepo;
   @Autowired
-    private CategoryRepository caRepo;
+    private final CategoryRepository caRepo;
+
+    public BookService(BookRepository bookRepository, AuthorRepository authorRepository, PublisherRepository pubRepo, CategoryRepository caRepo) {
+        this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
+        this.pubRepo = pubRepo;
+        this.caRepo = caRepo;
+    }
+  
     // Lấy tất cả sách
     public List<BookDto> getAllBooks() {
         return bookRepository.findAll().stream()
@@ -51,7 +56,13 @@ public class BookService {
                 .map(this::convertToDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với ID: " + id));
     }
-
+  public List<BookDto> getBooksByMaDM(String maDM) { // Đổi tên để rõ ràng hơn và đổi kiểu trả về
+        List<Book> books = bookRepository.findByDm_MaDanhMuc(maDM);
+        // Chuyển đổi danh sách Book entity sang danh sách BookDto
+        return books.stream()
+                    .map(this::convertToDto)
+                    .collect(java.util.stream.Collectors.toList());
+    }
     // Thêm sách mới
     public BookDto addBook(BookDto bookDto) {
         if (bookDto.getMaSach() == null || bookDto.getMaSach().isEmpty()) {

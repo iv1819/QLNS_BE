@@ -27,10 +27,11 @@ import org.springframework.web.server.ResponseStatusException;
 public class ODService {
      private final ODRepository odRepository;
 
-     private OrderRepository orderRepo;
+     private final OrderRepository orderRepo;
     @Autowired
-    public ODService(ODRepository odRepository) {
+    public ODService(ODRepository odRepository,OrderRepository orderRepository) {
         this.odRepository = odRepository;
+        this.orderRepo = orderRepository;
     }
 
     // Helper method to convert Entity to DTO
@@ -89,14 +90,10 @@ public class ODService {
         odRepository.deleteById(id);
     }
 
-   
-   public void deleteODsByMaDH(String maDH) { 
-        List<OD> odsToDelete = odRepository.findByOrder_MaDH(maDH);
-        if (odsToDelete.isEmpty()) {
-            
-            return;
-        }
-        odRepository.deleteAll(odsToDelete);
+   @Transactional // Đảm bảo toàn bộ quá trình xóa thành công hoặc thất bại
+    public void deleteODByMaDH(String maDH) {
+        
+        odRepository.deleteByOrder_MaDH(maDH);
     }
 
  public List<ODDto> getODsByMaDH(String maDH) {

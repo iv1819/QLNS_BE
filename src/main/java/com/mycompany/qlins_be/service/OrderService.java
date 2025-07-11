@@ -39,6 +39,7 @@ public class OrderService {
         dto.setTenKH(order.getTenKH());
         dto.setNgayBan(order.getNgayBan() != null ? order.getNgayBan().toLocalDate() : null); // Convert java.sql.Date to LocalDate
         dto.setTongTien(order.getTongTien());
+        dto.setTennv(order.getTennv());
         return dto;
     }
 
@@ -51,6 +52,7 @@ public class OrderService {
         order.setTenKH(orderDto.getTenKH());
         order.setNgayBan(orderDto.getNgayBan() != null ? Date.valueOf(orderDto.getNgayBan()) : null); // Convert LocalDate to java.sql.Date
         order.setTongTien(orderDto.getTongTien());
+        order.setTennv(orderDto.getTennv());
         return order;
     }
 
@@ -76,11 +78,14 @@ public class OrderService {
     }
 
     
+    @Transactional // Đảm bảo cả hai thao tác (xóa OD và xóa Order) cùng thành công hoặc thất bại
     public void deleteOrder(String id) {
         // Kiểm tra xem đơn hàng có tồn tại không
         if (!orderRepository.existsById(id)) {
             throw new RuntimeException("Order not found with id " + id); // Hoặc throw ResponseStatusException
         }
+        // Xóa tất cả chi tiết đơn hàng liên quan trước
+        odService.deleteODByMaDH(id); // Gọi service để xóa ODs
 
         // Sau đó xóa đơn hàng
         orderRepository.deleteById(id);
