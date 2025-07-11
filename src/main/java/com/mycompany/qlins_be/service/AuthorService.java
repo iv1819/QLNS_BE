@@ -1,15 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.qlins_be.service;
 
-/**
- *
- * @author trang
- */
 import com.mycompany.qlins_be.model.AuthorDto;
 import com.mycompany.qlins_be.entity.Author;
+import com.mycompany.qlins_be.entity.Book; // Import Book entity
 import com.mycompany.qlins_be.repository.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.UUID; // Import UUID
 import java.util.stream.Collectors;
 
 @Service
@@ -40,28 +33,32 @@ public class AuthorService {
     }
 
     public AuthorDto addAuthor(AuthorDto authorDto) {
-        // Kiểm tra xem tác giả đã tồn tại chưa (theo tên) để tránh trùng lặp
-        if (authorRepository.findByTenTG(authorDto.getTenTG()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tên tác giả đã tồn tại: " + authorDto.getTenTG());
+        // Kiểm tra nếu maTG được cung cấp và không rỗng
+        if (authorDto.getMaTG() != null && !authorDto.getMaTG().isEmpty()) {
+            if (authorRepository.existsById(authorDto.getMaTG())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Mã tác giả đã tồn tại: " + authorDto.getMaTG());
+            }
         }
-        
+        // Kiểm tra trùng tên tác giả
+        Optional<Author> existingAuthorWithName = authorRepository.findByTenTG(authorDto.getTenTG());
+        if (existingAuthorWithName.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tác giả với tên '" + authorDto.getTenTG() + "' đã tồn tại.");
+        }
+
+        // Chuyển đổi DTO sang Entity. Phương thức convertToEntity sẽ đảm bảo maTG là null nếu rỗng.
         Author author = convertToEntity(authorDto);
-        // Nếu maTG không được cung cấp, tự động tạo UUID
-        if (author.getMaTG() == null || author.getMaTG().isEmpty()) {
-            author.setMaTG(UUID.randomUUID().toString());
-        }
-        Author savedAuthor = authorRepository.save(author);
-        return convertToDto(savedAuthor);
+        Author newAuthor = authorRepository.save(author); // UuidGenerator sẽ tạo mã nếu maTG là null
+        return convertToDto(newAuthor);
     }
 
     public AuthorDto updateAuthor(String id, AuthorDto authorDetailsDto) {
         Author author = authorRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với ID: " + id));
 
-        // Kiểm tra trùng tên với các tác giả khác (trừ chính tác giả đang cập nhật)
-        Optional<Author> existingAuthorWithSameName = authorRepository.findByTenTG(authorDetailsDto.getTenTG());
-        if (existingAuthorWithSameName.isPresent() && !existingAuthorWithSameName.get().getMaTG().equals(id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tên tác giả đã tồn tại: " + authorDetailsDto.getTenTG());
+        // Kiểm tra trùng tên tác giả khác ID hiện tại
+        Optional<Author> existingAuthorWithName = authorRepository.findByTenTG(authorDetailsDto.getTenTG());
+        if (existingAuthorWithName.isPresent() && !existingAuthorWithName.get().getMaTG().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tên tác giả '" + authorDetailsDto.getTenTG() + "' đã tồn tại với mã khác.");
         }
 
         author.setTenTG(authorDetailsDto.getTenTG());
@@ -70,11 +67,17 @@ public class AuthorService {
     }
 
     public void deleteAuthor(String id) {
-        if (!authorRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với ID: " + id);
+        Author author = authorRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với ID: " + id));
+
+        // Giả sử Author có mối quan hệ @OneToMany với Book
+        if (author.getBooks() != null && !author.getBooks().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không thể xóa vì tác giả vẫn có sách liên kết.");
         }
-        authorRepository.deleteById(id);
+
+        authorRepository.delete(author);
     }
+
 
     public List<String> getAllAuthorNames() {
         return authorRepository.findAll().stream()
@@ -89,6 +92,15 @@ public class AuthorService {
 
     // Helper method to convert DTO to Entity
     private Author convertToEntity(AuthorDto authorDto) {
-        return new Author(authorDto.getMaTG(), authorDto.getTenTG());
+        String maTgFromDto = authorDto.getMaTG();
+        // Nếu mã tác giả từ DTO là null hoặc rỗng, hãy đặt nó là null để UuidGenerator hoạt động
+        String finalMaTg = (maTgFromDto == null || maTgFromDto.isEmpty()) ? null : maTgFromDto;
+        return new Author(finalMaTg, authorDto.getTenTG()); // Truyền giá trị đã xử lý
+    }
+
+    public List<AuthorDto> searchByTenTG(String keyword) {
+        return authorRepository.searchByTenTG(keyword).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 }

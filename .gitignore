@@ -27,3 +27,4 @@ target/
 src/main/resources/application.yml
 target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
 target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+target/classes/application.yml

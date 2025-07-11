@@ -5,9 +5,15 @@
 package com.mycompany.qlins_be.service;
 
 
+import com.mycompany.qlins_be.entity.Author;
 import com.mycompany.qlins_be.entity.Book;
+import com.mycompany.qlins_be.entity.Category;
+import com.mycompany.qlins_be.entity.Publisher;
 import com.mycompany.qlins_be.model.BookDto;
+import com.mycompany.qlins_be.repository.AuthorRepository;
 import com.mycompany.qlins_be.repository.BookRepository;
+import com.mycompany.qlins_be.repository.CategoryRepository;
+import com.mycompany.qlins_be.repository.PublisherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,13 +23,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service // Đánh dấu đây là một Spring Service
 public class BookService {
 
     @Autowired
     private BookRepository bookRepository;
-
+ @Autowired
+    private AuthorRepository authorRepository;
+  @Autowired
+    private PublisherRepository pubRepo;
+  @Autowired
+    private CategoryRepository caRepo;
     // Lấy tất cả sách
     public List<BookDto> getAllBooks() {
         return bookRepository.findAll().stream()
@@ -37,42 +51,53 @@ public class BookService {
                 .map(this::convertToDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với ID: " + id));
     }
+  public Page<BookDto> getBooksByMaDanhMuc(String maDanhMuc, int page, int size) {
+        // Create a Pageable object for pagination
+        Pageable pageable = PageRequest.of(page, size);
+          Page<Book> bookPage = bookRepository.findByDm_MaDanhMuc(maDanhMuc, pageable); 
+        // Convert Page<Book> to Page<BookDto>
+        return bookPage.map(this::convertToDto);
+    }
 
     // Thêm sách mới
     public BookDto addBook(BookDto bookDto) {
-        // Đảm bảo mã sách được tạo tự động nếu là null hoặc trống
         if (bookDto.getMaSach() == null || bookDto.getMaSach().isEmpty()) {
             bookDto.setMaSach(UUID.randomUUID().toString());
         } else {
-            // Nếu mã sách được cung cấp, kiểm tra xem đã tồn tại chưa
             if (bookRepository.existsById(bookDto.getMaSach())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Mã sách đã tồn tại: " + bookDto.getMaSach());
             }
         }
         Optional<Book> existingBookWithName = bookRepository.findByTenSach(bookDto.getTenSach());
         if (existingBookWithName.isPresent()) {
-            // Nếu tìm thấy sách có cùng tên, ném ra ngoại lệ CONFLICT
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Sách với tên '" + bookDto.getTenSach() + "' đã tồn tại.");
         }
-        Book book = convertToEntity(bookDto);
+
+        Book book = convertToEntity(bookDto); // Uses updated convertToEntity
         Book newBook = bookRepository.save(book);
         return convertToDto(newBook);
     }
 
     // Cập nhật sách
-    public BookDto updateBook(String id, BookDto bookDetailsDto) {
+     public BookDto updateBook(String id, BookDto bookDetailsDto) {
         Book existingBook = bookRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với ID: " + id));
 
-        // Cập nhật các trường từ DTO
+        // Find the Author by ID
+        Author author = authorRepository.findById(bookDetailsDto.getMaTacGia())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với ID: " + bookDetailsDto.getMaTacGia()));
+        Publisher nxb = pubRepo.findById(bookDetailsDto.getMaNXB())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy NXB với ID: " + bookDetailsDto.getMaNXB()));
+        Category dm = caRepo.findById(bookDetailsDto.getMaDM())
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục với ID: " + bookDetailsDto.getMaDM()));
         existingBook.setTenSach(bookDetailsDto.getTenSach());
         existingBook.setSoLuong(bookDetailsDto.getSoLuong());
         existingBook.setGiaBan(bookDetailsDto.getGiaBan());
         existingBook.setNamXB(bookDetailsDto.getNamXB());
         existingBook.setDuongDanAnh(bookDetailsDto.getDuongDanAnh());
-        existingBook.setTacGia(bookDetailsDto.getTacGia());
-        existingBook.setMaDanhMuc(bookDetailsDto.getMaDanhMuc());
-        existingBook.setNhaXB(bookDetailsDto.getNhaXB());
+        existingBook.setAuthor(author); // Set the Author object
+        existingBook.setDm(dm);
+        existingBook.setNxb(nxb);
 
         Book updatedBook = bookRepository.save(existingBook);
         return convertToDto(updatedBook);
@@ -88,23 +113,33 @@ public class BookService {
 
     // Tìm kiếm sách theo tên sách hoặc tên tác giả
     public List<BookDto> searchBooks(String query) {
-        return bookRepository.findByTenSachContainingIgnoreCaseOrTacGiaContainingIgnoreCase(query, query).stream()
+        return bookRepository.findByTenSachContainingIgnoreCaseOrAuthorTenTGContainingIgnoreCase(query, query).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    // Phương thức chuyển đổi Entity sang DTO
+   // Phương thức chuyển đổi Entity sang DTO
     private BookDto convertToDto(Book book) {
         BookDto bookDto = new BookDto();
         bookDto.setMaSach(book.getMaSach());
         bookDto.setTenSach(book.getTenSach());
         bookDto.setSoLuong(book.getSoLuong());
         bookDto.setGiaBan(book.getGiaBan());
-        bookDto.setTacGia(book.getTacGia());
-        bookDto.setNhaXB(book.getNhaXB());
+        // Set author details from the Author object
+        if (book.getAuthor() != null) {
+            bookDto.setMaTacGia(book.getAuthor().getMaTG());
+            bookDto.setTenTacGia(book.getAuthor().getTenTG());
+        }
+        if (book.getNxb()!= null) {
+            bookDto.setMaNXB(book.getNxb().getMaNXB());
+            bookDto.setTenNXB(book.getNxb().getTenNXB());
+        } 
+        if (book.getDm()!= null) {
+            bookDto.setMaDM(book.getDm().getMaDanhMuc());
+            bookDto.setTenDM(book.getDm().getTenDanhMuc());
+        } 
         bookDto.setDuongDanAnh(book.getDuongDanAnh());
         bookDto.setNamXB(book.getNamXB());
-        bookDto.setMaDanhMuc(book.getMaDanhMuc());
         return bookDto;
     }
 
@@ -115,11 +150,24 @@ public class BookService {
         book.setTenSach(bookDto.getTenSach());
         book.setSoLuong(bookDto.getSoLuong());
         book.setGiaBan(bookDto.getGiaBan());
-        book.setTacGia(bookDto.getTacGia());
-        book.setNhaXB(bookDto.getNhaXB());
-        book.setDuongDanAnh(bookDto.getDuongDanAnh());
+        // Find Author by ID from DTO and set it to the entity
+        if (bookDto.getMaTacGia() != null && !bookDto.getMaTacGia().isEmpty()) {
+            Author author = authorRepository.findById(bookDto.getMaTacGia())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tác giả với ID: " + bookDto.getMaTacGia()));
+            book.setAuthor(author);
+        }
+ if (bookDto.getMaNXB()!= null && !bookDto.getMaNXB().isEmpty()) {
+            Publisher nxb = pubRepo.findById(bookDto.getMaNXB())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy NXB với ID: " + bookDto.getMaNXB()));
+            book.setNxb(nxb);
+        } 
+  if (bookDto.getMaDM()!= null && !bookDto.getMaDM().isEmpty()) {
+            Category dm = caRepo.findById(bookDto.getMaDM())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục với ID: " + bookDto.getMaDM()));
+            book.setDm(dm);
+        } 
+ book.setDuongDanAnh(bookDto.getDuongDanAnh());
         book.setNamXB(bookDto.getNamXB());
-        book.setMaDanhMuc(bookDto.getMaDanhMuc());
         return book;
     }
 }

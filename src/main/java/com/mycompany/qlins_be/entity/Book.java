@@ -7,6 +7,8 @@ package com.mycompany.qlins_be.entity;
 import jakarta.persistence.Entity; // Sử dụng jakarta.persistence cho Spring Boot 3+
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UuidGenerator;
@@ -25,127 +27,85 @@ public class Book {
     private int soLuong;
    @Column(name = "gia")
     private double giaBan;
-    @Nationalized   
-   @Column(name = "ten_tg")
-    private String tacGia;
-     @Nationalized   
-@Column(name = "ten_nxb")
-    private String nhaXB;
+       @ManyToOne
+    @JoinColumn(name = "ma_tg", referencedColumnName = "ma_tg") // 'ma_tg' is the foreign key column in 'sach' table
+    private Author author;
+    @ManyToOne
+    @JoinColumn(name = "ma_nxb", referencedColumnName = "ma_nxb") // 'ma_tg' is the foreign key column in 'sach' table
+    private Publisher nxb;
 
     @Column(name = "anh")
     private String duongDanAnh; 
     @Column(name = "nam_xb")
     private int namXB;
- @Nationalized   
-    @Column(name = "ten_dm") // Khóa ngoại tới bảng Category
-    private String maDanhMuc;
+@ManyToOne
+    @JoinColumn(name = "ma_dm", referencedColumnName = "ma_dm") // 'ma_tg' is the foreign key column in 'sach' table
+    private Category dm;
 
-    // Constructor mặc định (cần thiết cho JPA và Jackson)
     public Book() {
-        // Có thể gán giá trị mặc định nếu cần
-        this.duongDanAnh = "";
     }
 
-    // Constructor với các tham số (tùy chọn, Lombok có thể thay thế)
-    public Book(String maSach, String tenSach, String duongDanAnh, String nhaXB, String tacGia, int soLuong, double giaBan, int namXB, String maDanhMuc) {
+    // Updated constructor to use Author object
+    public Book(String maSach, String tenSach, String duongDanAnh, Publisher nxb, Author author, int soLuong, double giaBan, int namXB, Category maDanhMuc) {
         this.maSach = maSach;
         this.tenSach = tenSach;
         this.duongDanAnh = duongDanAnh;
-        this.nhaXB = nhaXB;
-        this.tacGia = tacGia;
+        this.nxb = nxb;
+        this.author = author; // Assign the Author object
         this.soLuong = soLuong;
         this.giaBan = giaBan;
         this.namXB = namXB;
-        this.maDanhMuc = maDanhMuc;
+        this.dm = maDanhMuc;
     }
 
-    // --- Getters và Setters (Bắt buộc cho JPA và Jackson) ---
-    // NetBeans có thể tự tạo bằng cách: Click chuột phải -> Insert Code -> Getter and Setter
+    // Getters and Setters (updated for Author object)
+    public String getMaSach() { return maSach; }
+    public void setMaSach(String maSach) { this.maSach = maSach; }
+    public String getTenSach() { return tenSach; }
+    public void setTenSach(String tenSach) { this.tenSach = tenSach; }
+    public String getDuongDanAnh() { return duongDanAnh; }
+    public void setDuongDanAnh(String duongDanAnh) { this.duongDanAnh = duongDanAnh; }
 
-    public String getMaSach() {
-        return maSach;
+    public Publisher getNxb() {
+        return nxb;
     }
 
-    public void setMaSach(String maSach) {
-        this.maSach = maSach;
+    public void setNxb(Publisher nxb) {
+        this.nxb = nxb;
     }
 
-    public String getTenSach() {
-        return tenSach;
+
+    // New getter/setter for Author object
+    public Author getAuthor() { return author; }
+    public void setAuthor(Author author) { this.author = author; }
+
+    public int getSoLuong() { return soLuong; }
+    public void setSoLuong(int soLuong) { this.soLuong = soLuong; }
+    public double getGiaBan() { return giaBan; }
+    public void setGiaBan(double giaBan) { this.giaBan = giaBan; }
+    public int getNamXB() { return namXB; }
+    public void setNamXB(int namXB) { this.namXB = namXB; }
+
+    public Category getDm() {
+        return dm;
     }
 
-    public void setTenSach(String tenSach) {
-        this.tenSach = tenSach;
+    public void setDm(Category dm) {
+        this.dm = dm;
     }
-
-    public String getDuongDanAnh() {
-        return duongDanAnh;
-    }
-
-    public void setDuongDanAnh(String duongDanAnh) {
-        this.duongDanAnh = duongDanAnh;
-    }
-
-    public String getNhaXB() {
-        return nhaXB;
-    }
-
-    public void setNhaXB(String nhaXB) {
-        this.nhaXB = nhaXB;
-    }
-
-    public String getTacGia() {
-        return tacGia;
-    }
-
-    public void setTacGia(String tacGia) {
-        this.tacGia = tacGia;
-    }
-
-    public int getSoLuong() {
-        return soLuong;
-    }
-
-    public void setSoLuong(int soLuong) {
-        this.soLuong = soLuong;
-    }
-
-    public double getGiaBan() {
-        return giaBan;
-    }
-
-    public void setGiaBan(double giaBan) {
-        this.giaBan = giaBan;
-    }
-
-    public int getNamXB() {
-        return namXB;
-    }
-
-    public void setNamXB(int namXB) {
-        this.namXB = namXB;
-    }
-
-    public String getMaDanhMuc() {
-        return maDanhMuc;
-    }
-
-    public void setMaDanhMuc(String maDanhMuc) {
-        this.maDanhMuc = maDanhMuc;
-    }
-
-    @Override
+   
+   @Override
     public String toString() {
         return "Book{" +
                 "maSach='" + maSach + '\'' +
                 ", tenSach='" + tenSach + '\'' +
                 ", duongDanAnh='" + duongDanAnh + '\'' +
-                ", nhaXB='" + nhaXB + '\'' +
-                ", tacGia='" + tacGia + '\'' +
+                ", nhaXB='" + (nxb != null ? nxb.getTenNXB(): "null") + '\'' +
+                ", author=" + (author != null ? author.getTenTG() : "null") + // Updated for Author
                 ", soLuong=" + soLuong +
                 ", giaBan=" + giaBan +
                 ", namXB=" + namXB +
-                ", maDanhMuc='" + maDanhMuc + '\'' +
+                ", maDanhMuc='" + (dm != null ? dm.getTenDanhMuc(): "null") + 
                 '}';
     }
 }

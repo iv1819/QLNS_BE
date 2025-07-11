@@ -5,8 +5,10 @@
 package com.mycompany.qlins_be.repository;
 
 import com.mycompany.qlins_be.entity.Book;
-import com.mycompany.qlins_be.entity.Category;
-import org.springframework.data.jpa.repository.JpaRepository; 
+import org.springframework.data.domain.Page; // Import Page
+import org.springframework.data.domain.Pageable; // Import Pageable
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query; // Import Query
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
@@ -19,9 +21,11 @@ import java.util.Optional;
 public interface BookRepository extends JpaRepository<Book, String> {
     // JpaRepository cung cấp sẵn các phương thức CRUD cơ bản:
     // save(), findById(), findAll(), deleteById(), v.v.
-Optional<Book> findByTenSach(String tenSach); 
-    // Bạn có thể định nghĩa các phương thức tìm kiếm tùy chỉnh ở đây theo quy ước đặt tên của Spring Data JPA
-    List<Book> findByMaDanhMuc(String maDanhMuc); // Tìm sách theo mã danh mục
-    List<Book> findByTenSachContainingIgnoreCase(String tenSach); // Tìm sách theo tên (tìm kiếm mờ)
-    List<Book> findByTenSachContainingIgnoreCaseOrTacGiaContainingIgnoreCase(String tenSach, String tenTacGia);
+Optional<Book> findByTenSach(String tenSach);
+    List<Book> findByTenSachContainingIgnoreCase(String tenSach); 
+       List<Book> findByTenSachContainingIgnoreCaseOrAuthorTenTGContainingIgnoreCase(String tenSach, String tenTacGia);
+
+     // New: Find books by category with pagination
+     Page<Book> findByDm_MaDanhMuc(String maDanhMuc, Pageable pageable);
+
 }

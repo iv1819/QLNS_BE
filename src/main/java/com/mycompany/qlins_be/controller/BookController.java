@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
@@ -30,7 +31,14 @@ public class BookController {
         List<BookDto> books = bookService.getAllBooks();
         return ResponseEntity.ok(books);
     }
-
+ @GetMapping("/byCategory/{maDanhMuc}") // Changed path to be more specific
+    public ResponseEntity<Page<BookDto>> getBooksByMaDanhMuc(
+            @PathVariable String maDanhMuc,
+            @RequestParam(defaultValue = "0") int page, // Default page is 0
+            @RequestParam(defaultValue = "5") int size) { 
+        Page<BookDto> booksPage = bookService.getBooksByMaDanhMuc(maDanhMuc, page, size);
+        return ResponseEntity.ok(booksPage);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<BookDto> getBookById(@PathVariable String id) {
         BookDto bookDto = bookService.getBookById(id);
@@ -38,8 +46,6 @@ public class BookController {
     }
  @PostMapping
     public ResponseEntity<?> addBook(@Valid @RequestBody BookDto bookDto, BindingResult bindingResult) {
-        // Validation (kiểm tra BindingResult) vẫn nên ở Controller
-        // vì nó thuộc về lớp giao diện (Web Layer)
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getAllErrors().forEach(error -> {
@@ -49,14 +55,11 @@ public class BookController {
             });
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
-
-        // Gọi phương thức addBook từ BookService
         BookDto savedBook = bookService.addBook(bookDto);
         return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
     }
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBook(@PathVariable String id, @Valid @RequestBody BookDto bookDetails, BindingResult bindingResult) {
-        // Validation (kiểm tra BindingResult) vẫn nên ở Controller
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getAllErrors().forEach(error -> {
@@ -66,28 +69,18 @@ public class BookController {
             });
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
-
-        // Gọi phương thức updateBook từ BookService
         BookDto updatedBook = bookService.updateBook(id, bookDetails);
         return ResponseEntity.ok(updatedBook);
     }
 
-
-   // Xóa sách
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable String id) {
-        // Service đã ném ResponseStatusException nếu không tìm thấy, Controller chỉ cần gọi
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Tìm kiếm sách theo tên sách hoặc tên tác giả.
-     * @param query Chuỗi tìm kiếm (có thể là tên sách hoặc tên tác giả).
-     * @return Danh sách sách phù hợp (List<BookDto>).
-     */
     @GetMapping("/search")
-    public ResponseEntity<List<BookDto>> searchBooks(@RequestParam String query) { // Thay đổi kiểu trả về
+    public ResponseEntity<List<BookDto>> searchBooks(@RequestParam String query) {
         List<BookDto> books = bookService.searchBooks(query);
         return ResponseEntity.ok(books);
     }

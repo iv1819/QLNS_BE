@@ -30,11 +30,13 @@ public class BookDto {
     @NotNull(message = "Giá bán không được để trống!")
     private Double giaBan; // Sử dụng Double để có thể nhận null
 
-    @NotBlank(message = "Tác giả không được để trống!")
-    private String tacGia; // Tên tác giả
+    @NotBlank(message = "Mã tác giả không được để trống!")
+    private String maTacGia; // Use author ID for creation/update
+    private String tenTacGia; // Tên tác giả
 
-    @NotBlank(message = "Nhà xuất bản không được để trống!")
-    private String nhaXB; // Tên nhà xuất bản
+     @NotBlank(message = "Mã nhà xuất bản không được để trống!")
+    private String maNXB; 
+    private String tenNXB; 
 
     private String duongDanAnh; // Đường dẫn ảnh (URL tương đối hoặc tên file)
 
@@ -43,8 +45,9 @@ public class BookDto {
     @NotNull(message = "Năm xuất bản không được để trống!")
     private Integer namXB; // Sử dụng Integer để có thể nhận null
 
-    @NotBlank(message = "Mã danh mục không được để trống!")
-    private String maDanhMuc; // Mã danh mục
+   @NotBlank(message = "Mã nhà danh mục không được để trống!")
+    private String maDM; 
+    private String tenDM; 
 
 
     
