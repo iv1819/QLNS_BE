@@ -82,7 +82,7 @@ public class ODController {
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             // Xử lý lỗi nếu có, ví dụ: đơn hàng không tồn tại
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi khi xóa chi tiết đơn hàng theo mã đơn hàng: " + maDH + ". " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Lỗi khi xóa chi tiết đơn hàng theo mã đơn hàng: " + maDH + ". " + e.getMessage());
         }
     }
 
