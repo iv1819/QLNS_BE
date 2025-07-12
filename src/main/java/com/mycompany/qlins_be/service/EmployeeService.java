@@ -47,7 +47,7 @@ public class EmployeeService {
         }
         // Kiểm tra số điện thoại đủ 10 số
         if (employeeDto.getSdt() == null || !employeeDto.getSdt().matches("^\\d{10}$")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại phải có đúng 10 chữ số!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại phải là số và có đúng 10 chữ số!");
         }
         // Kiểm tra trùng số điện thoại
         if (employeeRepository.existsBySdt(employeeDto.getSdt())) {
@@ -69,7 +69,7 @@ public class EmployeeService {
 
         // Kiểm tra số điện thoại đủ 10 số
         if (employeeDetailsDto.getSdt() == null || !employeeDetailsDto.getSdt().matches("^\\d{10}$")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại phải có đúng 10 chữ số!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại phải là số và có đúng 10 chữ số!");
         }
         // Kiểm tra trùng số điện thoại (trừ trường hợp giữ nguyên số cũ)
         if (!existingEmployee.getSdt().equals(employeeDetailsDto.getSdt()) && employeeRepository.existsBySdt(employeeDetailsDto.getSdt())) {
