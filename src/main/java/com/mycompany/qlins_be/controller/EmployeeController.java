@@ -96,14 +96,7 @@ public class EmployeeController {
         return ResponseEntity.ok(employees);
     }
 
-    // GET /employees/search/salary?min=...&max=... - Tìm kiếm theo khoảng lương
-    @GetMapping("/search/salary")
-    public ResponseEntity<List<EmployeeDto>> searchEmployeesBySalaryRange(
-            @RequestParam BigDecimal min, 
-            @RequestParam BigDecimal max) {
-        List<EmployeeDto> employees = employeeService.searchEmployeesBySalaryRange(min, max);
-        return ResponseEntity.ok(employees);
-    }
+
 
     // GET /employees/auto-id - Lấy mã nhân viên tự động
     @GetMapping("/auto-id")

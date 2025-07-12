@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
-import java.math.BigDecimal;
 import java.util.Optional;
 
 @Repository
@@ -20,9 +19,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
     
     // Tìm kiếm nhân viên theo tên hoặc số điện thoại
     List<Employee> findByTenNvContainingIgnoreCaseOrSdtContaining(String tenNv, String sdt);
-    
-    // Tìm kiếm nhân viên theo khoảng lương
-    List<Employee> findByLuongBetween(BigDecimal minLuong, BigDecimal maxLuong);
     
     // Tìm kiếm nhân viên theo năm vào làm (sử dụng @Query)
     @Query("SELECT e FROM Employee e WHERE YEAR(e.ngayVaoLam) = :year")

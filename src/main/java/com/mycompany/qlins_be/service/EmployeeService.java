@@ -39,7 +39,8 @@ public class EmployeeService {
     // Thêm nhân viên mới
     public EmployeeDto addEmployee(EmployeeDto employeeDto) {
         if (employeeDto.getMaNv() == null || employeeDto.getMaNv().isEmpty()) {
-            employeeDto.setMaNv(UUID.randomUUID().toString());
+            // Sử dụng mã tự động thay vì UUID
+            employeeDto.setMaNv(generateAutoEmployeeId());
         } else {
             if (employeeRepository.existsById(employeeDto.getMaNv())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Mã nhân viên đã tồn tại: " + employeeDto.getMaNv());
@@ -120,12 +121,7 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    // Tìm kiếm theo khoảng lương
-    public List<EmployeeDto> searchEmployeesBySalaryRange(java.math.BigDecimal min, java.math.BigDecimal max) {
-        return employeeRepository.findByLuongBetween(min, max).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
+
 
     // Sinh mã nhân viên tự động theo format NVxxx
     public String generateAutoEmployeeId() {
