@@ -72,7 +72,7 @@ public class AccountDto {
     }
 
     public @NotBlank(message = "Tên nhân viên không được để trống!") String getTennv() {
-        return tennv;
+return tennv;
     }
 
     public void setTennv(@NotBlank(message = "Tên nhân viên không được để trống!") String tennv) {

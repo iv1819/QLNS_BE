@@ -7,10 +7,12 @@ package com.mycompany.qlins_be.service;
 
 import com.mycompany.qlins_be.entity.Account;
 import com.mycompany.qlins_be.model.AccountDto;
+import com.mycompany.qlins_be.model.UpdateaccountDto;
 import com.mycompany.qlins_be.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -70,22 +72,18 @@ public class AccountService {
             if (!account.getTrangThai().equalsIgnoreCase("Yes")) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tài khoản chưa được duyệt.");
             }
-            return convertToDto(account);
+return convertToDto(account);
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản hoặc mật khẩu không đúng.");
         }
     }
 
-    public AccountDto updateAccount(String taiKhoan, AccountDto accountDto) {
+    public AccountDto updateAccount(@PathVariable  String taiKhoan, UpdateaccountDto updateaccountDto) {
         Account existingAccount = accountRepository.findById(taiKhoan)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản với username: " + taiKhoan));
 
-        // Update fields from DTO to existing entity
-        // Note: taiKhoan (ID) is immutable for updates here, it's identified by path variable
-        existingAccount.setMatKhau(accountDto.getMatKhau());
-        existingAccount.setChucVu(accountDto.getChucVu());
-        existingAccount.setTrangThai(accountDto.getTrangThai());
-        existingAccount.setTennv(accountDto.getTennv());
+        existingAccount.setMatKhau(updateaccountDto.getMatKhau());
+        existingAccount.setTrangThai(updateaccountDto.getTrangThai());
 
         Account updatedAccount = accountRepository.save(existingAccount);
         return convertToDto(updatedAccount);
@@ -109,4 +107,15 @@ public class AccountService {
                 .map(this::convertToDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản với username: " + taiKhoan));
     }
+
+    public boolean existsByTaiKhoan(String taiKhoan) {
+        return accountRepository.existsByTaiKhoan(taiKhoan);
+    }
+
+    public List<AccountDto> searchAccounts(String keyword) {
+        return accountRepository.searchByTaiKhoan(keyword).stream()
+                .map(account -> convertToDto(account))
+                .collect(Collectors.toList());
+    }
+
 }
